@@ -2,19 +2,19 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const cookie = request.cookies.get("auth-token");
-  const { pathname } = request.nextUrl;
+  // const cookie = request.cookies.get("auth-token");
+  // const { pathname } = request.nextUrl;
 
-  if (pathname === "/login") {
-    if (cookie?.value === "welcome-authorized") {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-    return NextResponse.next();
-  }
+  // if (pathname === "/login") {
+  //   if (cookie?.value === "welcome-authorized") {
+  //     return NextResponse.redirect(new URL("/", request.url));
+  //   }
+  //   return NextResponse.next();
+  // }
 
-  if (cookie?.value !== "welcome-authorized") {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+  // if (cookie?.value !== "welcome-authorized") {
+  //   return NextResponse.redirect(new URL("/login", request.url));
+  // }
 
   return NextResponse.next();
 }
