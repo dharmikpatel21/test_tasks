@@ -1,33 +1,42 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { jwtVerify } from "jose";
 
-export function middleware(request: NextRequest) {
-  // const cookie = request.cookies.get("auth-token");
-  // const { pathname } = request.nextUrl;
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
-  // if (pathname === "/login") {
-  //   if (cookie?.value === "welcome-authorized") {
-  //     return NextResponse.redirect(new URL("/", request.url));
-  //   }
-  //   return NextResponse.next();
-  // }
+async function isAuthenticated(req: NextRequest): Promise<boolean> {
+  const token = req.cookies.get("auth-token")?.value;
+  if (!token) return false;
+  try {
+    await jwtVerify(token, SECRET);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-  // if (cookie?.value !== "welcome-authorized") {
-  //   return NextResponse.redirect(new URL("/login", request.url));
-  // }
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const authed = await isAuthenticated(request);
+
+  // If on login page and already authenticated → go to tasks
+  if (pathname === "/login") {
+    if (authed) {
+      return NextResponse.redirect(new URL("/tasks", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // All other routes require auth
+  if (!authed) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("from", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };

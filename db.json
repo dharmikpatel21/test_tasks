@@ -1,0 +1,136 @@
+{
+  "users": [
+    {
+      "id": "u1",
+      "name": "Admin User",
+      "email": "admin@test.com",
+      "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+      "role": "admin",
+      "avatar": "AU",
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "u2",
+      "name": "Jane Developer",
+      "email": "jane@test.com",
+      "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+      "role": "developer",
+      "avatar": "JD",
+      "createdAt": "2026-01-02T00:00:00.000Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Setup Authentication System",
+      "description": "Implement a secure authentication system using JWT tokens and bcrypt password hashing. The system should support login, logout, and protected route access. hello do it asap",
+      "approach": "1. Create login API route that verifies credentials against the database. 2. Sign a JWT token with user payload. 3. Store token in HTTP-only cookie. 4. Implement middleware to verify token on every request. 5. Add logout endpoint to clear cookies.",
+      "technologies": [
+        "Next.js",
+        "JWT",
+        "bcryptjs",
+        "jose",
+        "JSON Server"
+      ],
+      "deployTarget": "Vercel (Next.js app) + Railway (JSON Server)",
+      "status": "pending",
+      "priority": "medium",
+      "assignedTo": "u1",
+      "createdBy": "u1",
+      "createdAt": "2026-02-01T10:00:00.000Z",
+      "updatedAt": "2026-02-26T12:17:42.150Z"
+    },
+    {
+      "id": "t2",
+      "title": "Build Task Dashboard UI",
+      "description": "Design and implement the task dashboard with filtering by status, priority indicators, and real-time updates when tasks change state.",
+      "approach": "1. Create task card component with status badges. 2. Add tab-based filter for All / Pending / Processing / Complete. 3. Support click-through navigation to task detail page. 4. Use optimistic updates for a snappy UX.",
+      "technologies": [
+        "React",
+        "Tailwind CSS",
+        "shadcn/ui",
+        "Next.js App Router"
+      ],
+      "deployTarget": "Vercel",
+      "status": "complete",
+      "priority": "high",
+      "assignedTo": "u2",
+      "createdBy": "u1",
+      "createdAt": "2026-02-05T09:00:00.000Z",
+      "updatedAt": "2026-02-26T12:15:58.484Z"
+    },
+    {
+      "id": "t3",
+      "title": "Integrate JSON Server as Backend",
+      "description": "Set up json-server as a mock REST API backend. Configure all CRUD endpoints for users and tasks. Add cors and custom middleware support.",
+      "approach": "1. Install json-server via npm. 2. Define db.json schema with users and tasks. 3. Add start script to package.json. 4. Create Next.js API proxy routes for client-side calls. 5. Seed the database with initial data.",
+      "technologies": [
+        "JSON Server",
+        "Node.js",
+        "REST API"
+      ],
+      "deployTarget": "Railway or Render (persistent JSON backend)",
+      "status": "complete",
+      "priority": "medium",
+      "assignedTo": "u1",
+      "createdBy": "u1",
+      "createdAt": "2026-02-03T08:00:00.000Z",
+      "updatedAt": "2026-02-08T16:00:00.000Z"
+    },
+    {
+      "id": "t4",
+      "title": "Task Detail & Edit Page",
+      "description": "Build a task detail page that shows all task fields and allows inline editing. Users should be able to modify any field and save changes back to the server.",
+      "approach": "1. Create dynamic route /tasks/[id]. 2. Fetch task data server-side. 3. Render a read view with an Edit button. 4. Switch to form mode on edit click. 5. PATCH updated fields to /api/tasks/[id]. 6. Show success toast on save.",
+      "technologies": [
+        "Next.js",
+        "react-hook-form",
+        "Tailwind CSS",
+        "sonner"
+      ],
+      "deployTarget": "Vercel",
+      "status": "processing",
+      "priority": "high",
+      "assignedTo": "u2",
+      "createdBy": "u1",
+      "createdAt": "2026-02-10T10:00:00.000Z",
+      "updatedAt": "2026-02-25T09:00:00.000Z"
+    },
+    {
+      "id": "t5",
+      "title": "Write Unit Tests for Auth Flow",
+      "description": "Write comprehensive unit and integration tests for the login API route, middleware token verification, and logout flow.",
+      "approach": "1. Use Jest + Testing Library. 2. Mock JSON server responses. 3. Test valid login, invalid credentials, expired token, and logout scenarios. 4. Add CI workflow with GitHub Actions.",
+      "technologies": [
+        "Jest",
+        "Testing Library",
+        "GitHub Actions"
+      ],
+      "deployTarget": "GitHub CI/CD",
+      "status": "pending",
+      "priority": "medium",
+      "assignedTo": "u2",
+      "createdBy": "u1",
+      "createdAt": "2026-02-15T14:00:00.000Z",
+      "updatedAt": "2026-02-15T14:00:00.000Z"
+    },
+    {
+      "id": "t6",
+      "title": "Mobile Responsiveness Audit",
+      "description": "Audit all pages for mobile responsiveness. Fix layout issues, ensure the task list collapses to a single column, and test on common device sizes.",
+      "approach": "1. Test on 320px, 375px, 768px breakpoints. 2. Use Tailwind responsive prefixes (sm:, md:, lg:). 3. Fix sidebar collapse on mobile. 4. Test with Chrome DevTools device emulation.",
+      "technologies": [
+        "Tailwind CSS",
+        "CSS",
+        "Chrome DevTools"
+      ],
+      "deployTarget": "Vercel (same deployment)",
+      "status": "pending",
+      "priority": "low",
+      "assignedTo": "u1",
+      "createdBy": "u1",
+      "createdAt": "2026-02-20T12:00:00.000Z",
+      "updatedAt": "2026-02-20T12:00:00.000Z"
+    }
+  ]
+}
