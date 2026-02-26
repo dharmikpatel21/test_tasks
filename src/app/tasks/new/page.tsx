@@ -33,6 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { UserSelect } from "@/components/UserSelect";
 import type { TaskStatus, TaskPriority } from "@/lib/api";
 
 interface FormData {
@@ -202,8 +203,8 @@ export default function NewTaskPage() {
               />
             </div>
 
-            {/* Status + Priority + AssignedTo */}
-            <div className="grid grid-cols-3 gap-4">
+            {/* Status + Priority */}
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-muted-foreground">Status</Label>
                 <Select
@@ -237,15 +238,12 @@ export default function NewTaskPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-muted-foreground">Assign To</Label>
-                <Input
-                  {...register("assignedTo")}
-                  placeholder="u1, u2…"
-                  className="bg-white/5 border-white/10 focus:border-primary"
-                />
-              </div>
+            {/* Assign To — real user picker */}
+            <div className="space-y-1.5">
+              <Label className="text-muted-foreground">Assign To</Label>
+              <UserSelect onValueChange={(v) => setValue("assignedTo", v)} />
             </div>
 
             <Separator className="bg-border/50" />

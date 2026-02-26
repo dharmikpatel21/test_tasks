@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { UserSelect, type AppUser } from "@/components/UserSelect";
 import type { Task, TaskStatus, TaskPriority } from "@/lib/api";
 
 const statusBadge: Record<TaskStatus, string> = {
@@ -61,6 +62,7 @@ export default function TaskDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [task, setTask] = useState<Task | null>(null);
+  const [users, setUsers] = useState<AppUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -75,13 +77,19 @@ export default function TaskDetailPage() {
   } = useForm<FormData>();
 
   useEffect(() => {
-    fetch(`/api/tasks/${id}`)
-      .then((r) => {
+    // Fetch task + users in parallel
+    Promise.all([
+      fetch(`/api/tasks/${id}`).then((r) => {
         if (!r.ok) throw new Error();
         return r.json();
-      })
-      .then((data: Task) => {
+      }),
+      fetch("/api/users")
+        .then((r) => r.json())
+        .catch(() => []),
+    ])
+      .then(([data, usersData]: [Task, AppUser[]]) => {
         setTask(data);
+        setUsers(Array.isArray(usersData) ? usersData : []);
         reset({
           title: data.title,
           description: data.description,
@@ -379,6 +387,15 @@ export default function TaskDetailPage() {
                 </div>
               </div>
 
+              {/* Assign To — user picker */}
+              <div className="space-y-1.5">
+                <Label className="text-muted-foreground">Assign To</Label>
+                <UserSelect
+                  value={task.assignedTo}
+                  onValueChange={(v) => setValue("assignedTo", v)}
+                />
+              </div>
+
               <Separator className="bg-border/50" />
 
               <div className="flex gap-3">
@@ -472,7 +489,13 @@ export default function TaskDetailPage() {
                   year: "numeric",
                 }),
               },
-              { label: "Assigned To", value: task.assignedTo },
+              {
+                label: "Assigned To",
+                value: (() => {
+                  const u = users.find((u) => u.id === task.assignedTo);
+                  return u ? `${u.name} (${u.role})` : task.assignedTo;
+                })(),
+              },
             ].map(({ label, value }) => (
               <Card key={label} className="border-border/40 bg-card/40">
                 <CardContent className="p-4">

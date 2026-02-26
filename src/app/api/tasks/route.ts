@@ -5,20 +5,52 @@ const JSON_SERVER = "http://localhost:8000";
 
 export async function GET(req: NextRequest) {
   const token = req.cookies.get("auth-token")?.value;
-  if (!token || !(await verifyToken(token))) {
+  const payload = token ? await verifyToken(token) : null;
+  if (!payload) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Forward supported query params to json-server
   const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status");
+  const params = new URLSearchParams();
 
-  const url = status
-    ? `${JSON_SERVER}/tasks?status=${status}`
-    : `${JSON_SERVER}/tasks`;
+  const status = searchParams.get("status");
+  const q = searchParams.get("q");
+  const page = searchParams.get("page");
+  const limit = searchParams.get("limit");
+
+  if (status) params.set("status", status);
+  if (q) params.set("q", q);
+  if (page) params.set("_page", page);
+  if (limit) params.set("_per_page", limit); // json-server v1 pagination
+
+  // ── Ownership filter ─────────────────────────────────────────────────────
+  // Always scope tasks to the currently logged-in user.
+  // Admins can bypass this by having an "admin" role — they see all tasks.
+  if (payload.role !== "admin") {
+    params.set("assignedTo", payload.userId);
+  }
+  // ────────────────────────────────────────────────────────────────────────
+
+  const qs = params.toString();
+  const url = `${JSON_SERVER}/tasks${qs ? `?${qs}` : ""}`;
 
   const res = await fetch(url, { cache: "no-store" });
-  const data = await res.json();
-  return NextResponse.json(data);
+  const raw = await res.json();
+
+  // json-server v1 paginated response: { data: [], items: N, pages: N, ... }
+  // Non-paginated (no _page) returns a plain array.
+  const isPagedResponse =
+    raw && typeof raw === "object" && !Array.isArray(raw) && "data" in raw;
+  const tasks = isPagedResponse ? raw.data : raw;
+  const totalCount = isPagedResponse
+    ? raw.items
+    : Number(
+        res.headers.get("X-Total-Count") ??
+          (Array.isArray(raw) ? raw.length : 0),
+      );
+
+  return NextResponse.json({ tasks, total: totalCount });
 }
 
 export async function POST(req: NextRequest) {
