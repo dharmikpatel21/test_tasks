@@ -9,14 +9,23 @@ import {
   Loader2,
   CheckCircle2,
   LayoutDashboard,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+} from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 import type { Task, TaskStatus } from "@/lib/api";
+
+const ITEMS_PER_PAGE = 6;
 
 const statusStyle: Record<TaskStatus | "all", { badge: string; dot: string }> =
   {
@@ -54,11 +63,14 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<TaskStatus | "all">("all");
   const [search, setSearch] = useState("");
+  // Track the last filter+search combo so we know when to reset page
+  const [pageKey, setPageKey] = useState("");
+  const [page, setPage] = useState(1);
 
+  // Always fetch ALL tasks so counts are always accurate
   useEffect(() => {
     let cancelled = false;
-    const url = filter === "all" ? "/api/tasks" : `/api/tasks?status=${filter}`;
-    fetch(url)
+    fetch("/api/tasks")
       .then((r) => r.json())
       .then((d) => {
         if (!cancelled) {
@@ -75,14 +87,16 @@ export default function TasksPage() {
     return () => {
       cancelled = true;
     };
-  }, [filter]);
+  }, []); // fetch once — filtering is done client-side
 
-  const filtered = tasks.filter(
-    (t) =>
-      t.title.toLowerCase().includes(search.toLowerCase()) ||
-      t.description.toLowerCase().includes(search.toLowerCase()),
-  );
+  // When filter or search change, update pageKey (which drives page reset)
+  const nextKey = `${filter}::${search}`;
+  if (nextKey !== pageKey) {
+    setPageKey(nextKey);
+    setPage(1);
+  }
 
+  // Counts always from full task list (unaffected by filter)
   const counts = tasks.reduce(
     (acc, t) => {
       acc[t.status] = (acc[t.status] ?? 0) + 1;
@@ -91,6 +105,21 @@ export default function TasksPage() {
     },
     {} as Record<string, number>,
   );
+
+  // Apply status tab filter first, then search
+  const statusFiltered =
+    filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
+
+  const filtered = statusFiltered.filter(
+    (t) =>
+      t.title.toLowerCase().includes(search.toLowerCase()) ||
+      t.description.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(page, totalPages);
+  const pageStart = (safePage - 1) * ITEMS_PER_PAGE;
+  const paginated = filtered.slice(pageStart, pageStart + ITEMS_PER_PAGE);
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
@@ -109,7 +138,7 @@ export default function TasksPage() {
         </div>
         <Button
           onClick={() => router.push("/tasks/new")}
-          className="bg-gradient-to-r from-primary to-violet-600 hover:from-primary/90 hover:to-violet-600/90 shadow-lg shadow-primary/20 font-semibold gap-2"
+          className="bg-linear-to-r from-primary to-violet-600 hover:from-primary/90 hover:to-violet-600/90 shadow-lg shadow-primary/20 font-semibold gap-2"
         >
           <Plus className="h-4 w-4" strokeWidth={2.5} />
           New Task
@@ -197,15 +226,91 @@ export default function TasksPage() {
           <p className="text-sm">Try a different filter or create a new task</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onClick={() => router.push(`/tasks/${task.id}`)}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {paginated.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onClick={() => router.push(`/tasks/${task.id}`)}
+              />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-2">
+              {/* Showing X – Y of Z */}
+              <p className="text-xs text-muted-foreground">
+                Showing{" "}
+                <span className="font-medium text-foreground">
+                  {pageStart + 1}–
+                  {Math.min(pageStart + ITEMS_PER_PAGE, filtered.length)}
+                </span>{" "}
+                of{" "}
+                <span className="font-medium text-foreground">
+                  {filtered.length}
+                </span>{" "}
+                tasks
+              </p>
+
+              <Pagination>
+                <PaginationContent className="gap-1">
+                  {/* Prev */}
+                  <PaginationItem>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={safePage === 1}
+                      className="h-8 gap-1.5 border-border/50 text-xs"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                      Prev
+                    </Button>
+                  </PaginationItem>
+
+                  {/* Page numbers */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (p) => (
+                      <PaginationItem key={p}>
+                        <Button
+                          variant={safePage === p ? "default" : "ghost"}
+                          size="sm"
+                          onClick={() => setPage(p)}
+                          className={cn(
+                            "h-8 w-8 p-0 text-xs",
+                            safePage === p
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground",
+                          )}
+                        >
+                          {p}
+                        </Button>
+                      </PaginationItem>
+                    ),
+                  )}
+
+                  {/* Next */}
+                  <PaginationItem>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={safePage === totalPages}
+                      className="h-8 gap-1.5 border-border/50 text-xs"
+                    >
+                      Next
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

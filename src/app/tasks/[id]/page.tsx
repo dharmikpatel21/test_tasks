@@ -13,7 +13,6 @@ import {
   Loader2,
   Globe,
   Cpu,
-  Target,
   AlignLeft,
   Lightbulb,
   Tag,
@@ -205,7 +204,7 @@ export default function TaskDetailPage() {
                 {task.priority} priority
               </Badge>
             </div>
-            <div className="flex gap-2 flex-shrink-0">
+            <div className="flex gap-2 shrink-0">
               {!editing && (
                 <Button
                   variant="outline"
@@ -386,7 +385,7 @@ export default function TaskDetailPage() {
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="bg-gradient-to-r from-primary to-violet-600 shadow-md shadow-primary/20"
+                  className="bg-linear-to-r from-primary to-violet-600 shadow-md shadow-primary/20"
                 >
                   {saving ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -55,17 +55,17 @@ export default function TasksLayout({
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex h-screen bg-background">
       {/* ── Sidebar ── */}
       <aside
         className={cn(
-          "relative flex flex-col border-r border-border bg-sidebar transition-all duration-250 ease-in-out flex-shrink-0",
+          "relative flex flex-col border-r border-border bg-sidebar transition-all duration-250 ease-in-out shrink-0",
           collapsed ? "w-16" : "w-60",
         )}
       >
         {/* Logo */}
         <div className="flex items-center gap-2.5 px-4 py-5 border-b border-sidebar-border overflow-hidden">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-violet-600 shadow-md shadow-primary/30">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary to-violet-600 shadow-md shadow-primary/30">
             <CheckSquare
               className="h-4 w-4 text-primary-foreground"
               strokeWidth={2.5}
@@ -95,7 +95,7 @@ export default function TasksLayout({
                     : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
                 )}
               >
-                <Icon className="h-4 w-4 flex-shrink-0" />
+                <Icon className="h-4 w-4 shrink-0" />
                 {!collapsed && (
                   <span className="whitespace-nowrap">{label}</span>
                 )}
@@ -113,8 +113,8 @@ export default function TasksLayout({
                 collapsed && "justify-center",
               )}
             >
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarFallback className="bg-gradient-to-br from-primary to-violet-600 text-primary-foreground text-xs font-bold">
+              <Avatar className="h-8 w-8 shrink-0">
+                <AvatarFallback className="bg-linear-to-br from-primary to-violet-600 text-primary-foreground text-xs font-bold">
                   {user.avatar ?? user.name.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -140,7 +140,7 @@ export default function TasksLayout({
               collapsed ? "justify-center px-0" : "justify-start",
             )}
           >
-            <LogOut className="h-4 w-4 flex-shrink-0" />
+            <LogOut className="h-4 w-4 shrink-0" />
             {!collapsed && <span className="ml-2">Logout</span>}
           </Button>
         </div>

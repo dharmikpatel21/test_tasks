@@ -56,11 +56,11 @@ export default function LoginPage() {
       <div className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-primary/20 blur-[120px] animate-pulse" />
       <div className="pointer-events-none absolute -bottom-32 -right-32 h-[400px] w-[400px] rounded-full bg-violet-600/15 blur-[100px] animate-pulse [animation-delay:2s]" />
 
-      <Card className="relative z-10 w-full max-w-[420px] mx-4 border-white/10 bg-white/[0.04] backdrop-blur-xl shadow-2xl">
+      <Card className="relative z-10 w-full max-w-[420px] mx-4 border-white/10 bg-white/4 backdrop-blur-xl shadow-2xl">
         <CardHeader className="pb-4 space-y-0">
           {/* Brand */}
           <div className="flex items-center gap-3 mb-5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-violet-600 shadow-lg shadow-primary/30">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br from-primary to-violet-600 shadow-lg shadow-primary/30">
               <CheckSquare
                 className="h-5 w-5 text-primary-foreground"
                 strokeWidth={2.5}
@@ -150,7 +150,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 bg-gradient-to-r from-primary to-violet-600 hover:from-primary/90 hover:to-violet-600/90 shadow-lg shadow-primary/25 font-semibold transition-all hover:-translate-y-0.5"
+              className="w-full mt-2 bg-linear-to-r from-primary to-violet-600 hover:from-primary/90 hover:to-violet-600/90 shadow-lg shadow-primary/25 font-semibold transition-all hover:-translate-y-0.5"
             >
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

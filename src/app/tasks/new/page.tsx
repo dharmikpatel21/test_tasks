@@ -97,7 +97,7 @@ export default function NewTaskPage() {
 
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-violet-600 shadow-lg shadow-primary/25">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-primary to-violet-600 shadow-lg shadow-primary/25">
           <Plus className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
         </div>
         <div>
@@ -255,7 +255,7 @@ export default function NewTaskPage() {
               <Button
                 type="submit"
                 disabled={saving}
-                className="bg-gradient-to-r from-primary to-violet-600 shadow-md shadow-primary/20 font-semibold"
+                className="bg-linear-to-r from-primary to-violet-600 shadow-md shadow-primary/20 font-semibold"
               >
                 {saving ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
