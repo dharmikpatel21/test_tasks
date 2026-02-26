@@ -10,42 +10,42 @@ import {
   CheckCircle2,
   LayoutDashboard,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import type { Task, TaskStatus } from "@/lib/api";
 
-const statusConfig: Record<
-  TaskStatus | "all",
-  { label: string; color: string; bg: string; dot: string }
-> = {
-  all: {
-    label: "All Tasks",
-    color: "#94a3b8",
-    bg: "rgba(148,163,184,0.1)",
-    dot: "#94a3b8",
-  },
-  pending: {
-    label: "Pending",
-    color: "#f59e0b",
-    bg: "rgba(245,158,11,0.12)",
-    dot: "#f59e0b",
-  },
-  processing: {
-    label: "Processing",
-    color: "#3b82f6",
-    bg: "rgba(59,130,246,0.12)",
-    dot: "#3b82f6",
-  },
-  complete: {
-    label: "Complete",
-    color: "#10b981",
-    bg: "rgba(16,185,129,0.12)",
-    dot: "#10b981",
-  },
+const statusStyle: Record<TaskStatus | "all", { badge: string; dot: string }> =
+  {
+    all: { badge: "bg-muted text-muted-foreground", dot: "bg-slate-400" },
+    pending: {
+      badge: "bg-amber-500/15 text-amber-400 border-amber-500/20",
+      dot: "bg-amber-400",
+    },
+    processing: {
+      badge: "bg-blue-500/15 text-blue-400 border-blue-500/20",
+      dot: "bg-blue-400",
+    },
+    complete: {
+      badge: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
+      dot: "bg-emerald-400",
+    },
+  };
+
+const priorityStyle: Record<string, string> = {
+  high: "bg-red-500/15 text-red-400 border-red-500/20",
+  medium: "bg-amber-500/15 text-amber-400 border-amber-500/20",
+  low: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
 };
 
-const priorityConfig = {
-  high: { label: "High", color: "#ef4444", bg: "rgba(239,68,68,0.12)" },
-  medium: { label: "Medium", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
-  low: { label: "Low", color: "#10b981", bg: "rgba(16,185,129,0.12)" },
+const tabLabels: Record<string, string> = {
+  all: "All",
+  pending: "Pending",
+  processing: "Processing",
+  complete: "Complete",
 };
 
 export default function TasksPage() {
@@ -56,13 +56,13 @@ export default function TasksPage() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const url = filter === "all" ? "/api/tasks" : `/api/tasks?status=${filter}`;
     let cancelled = false;
+    const url = filter === "all" ? "/api/tasks" : `/api/tasks?status=${filter}`;
     fetch(url)
       .then((r) => r.json())
-      .then((data) => {
+      .then((d) => {
         if (!cancelled) {
-          setTasks(Array.isArray(data) ? data : []);
+          setTasks(Array.isArray(d) ? d : []);
           setLoading(false);
         }
       })
@@ -93,235 +93,111 @@ export default function TasksPage() {
   );
 
   return (
-    <div
-      style={{
-        maxWidth: 1200,
-        margin: "0 auto",
-        padding: "32px 24px",
-        color: "#f1f5f9",
-      }}
-    >
+    <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
       {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 32,
-        }}
-      >
+      <div className="flex items-center justify-between">
         <div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              marginBottom: 4,
-            }}
-          >
-            <LayoutDashboard size={22} color="#6366f1" />
-            <h1
-              style={{
-                margin: 0,
-                fontSize: 24,
-                fontWeight: 700,
-                color: "#f1f5f9",
-                letterSpacing: "-0.5px",
-              }}
-            >
+          <div className="flex items-center gap-2.5 mb-1">
+            <LayoutDashboard className="h-5 w-5 text-primary" />
+            <h1 className="text-2xl font-bold tracking-tight">
               Task Dashboard
             </h1>
           </div>
-          <p style={{ margin: 0, color: "#64748b", fontSize: 14 }}>
+          <p className="text-sm text-muted-foreground">
             Manage and track your project tasks
           </p>
         </div>
-        <button
+        <Button
           onClick={() => router.push("/tasks/new")}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "10px 18px",
-            background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
-            border: "none",
-            borderRadius: 10,
-            color: "white",
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: "pointer",
-            boxShadow: "0 4px 16px rgba(99,102,241,0.3)",
-            transition: "opacity 0.2s, transform 0.15s",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.opacity = "0.9";
-            e.currentTarget.style.transform = "translateY(-1px)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.opacity = "1";
-            e.currentTarget.style.transform = "none";
-          }}
+          className="bg-gradient-to-r from-primary to-violet-600 hover:from-primary/90 hover:to-violet-600/90 shadow-lg shadow-primary/20 font-semibold gap-2"
         >
-          <Plus size={16} strokeWidth={2.5} />
+          <Plus className="h-4 w-4" strokeWidth={2.5} />
           New Task
-        </button>
+        </Button>
       </div>
 
       {/* Stat Cards */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-          gap: 14,
-          marginBottom: 28,
-        }}
-      >
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {(["all", "pending", "processing", "complete"] as const).map((s) => {
-          const cfg = statusConfig[s];
+          const { badge } = statusStyle[s];
+          const isActive = filter === s;
           return (
-            <div
+            <Card
               key={s}
               onClick={() => setFilter(s)}
-              style={{
-                background: filter === s ? cfg.bg : "rgba(255,255,255,0.03)",
-                border: `1px solid ${filter === s ? cfg.color + "40" : "rgba(255,255,255,0.07)"}`,
-                borderRadius: 12,
-                padding: "14px 16px",
-                cursor: "pointer",
-                transition: "all 0.2s",
-              }}
+              className={cn(
+                "cursor-pointer transition-all duration-200 hover:-translate-y-0.5",
+                isActive
+                  ? "border-primary/30 bg-primary/5"
+                  : "border-border/50 bg-card/60 hover:border-border",
+              )}
             >
-              <div style={{ fontSize: 26, fontWeight: 700, color: cfg.color }}>
-                {counts[s] ?? 0}
-              </div>
-              <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
-                {cfg.label}
-              </div>
-            </div>
+              <CardContent className="pt-4 pb-3 px-4">
+                <p
+                  className={cn(
+                    "text-3xl font-bold mb-1",
+                    isActive ? "text-primary" : "text-foreground",
+                  )}
+                >
+                  {counts[s] ?? 0}
+                </p>
+                <Badge
+                  variant="outline"
+                  className={cn("text-[11px] font-medium border", badge)}
+                >
+                  {tabLabels[s]}
+                </Badge>
+              </CardContent>
+            </Card>
           );
         })}
       </div>
 
-      {/* Filter Tabs + Search */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 20,
-          flexWrap: "wrap",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            background: "rgba(255,255,255,0.04)",
-            borderRadius: 10,
-            padding: 3,
-            border: "1px solid rgba(255,255,255,0.07)",
-            gap: 2,
-          }}
+      {/* Filters + Search */}
+      <div className="flex flex-wrap items-center gap-3">
+        <Tabs
+          value={filter}
+          onValueChange={(v) => setFilter(v as TaskStatus | "all")}
         >
-          {(["all", "pending", "processing", "complete"] as const).map((s) => {
-            const cfg = statusConfig[s];
-            const active = filter === s;
-            return (
-              <button
-                key={s}
-                onClick={() => setFilter(s)}
-                style={{
-                  padding: "7px 14px",
-                  borderRadius: 8,
-                  border: "none",
-                  background: active ? cfg.bg : "transparent",
-                  color: active ? cfg.color : "#64748b",
-                  fontSize: 13,
-                  fontWeight: active ? 600 : 400,
-                  cursor: "pointer",
-                  transition: "all 0.15s",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
-              >
-                {active && (
-                  <span
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: cfg.dot,
-                    }}
-                  />
-                )}
-                {cfg.label}
-              </button>
-            );
-          })}
-        </div>
+          <TabsList className="bg-card/60 border border-border/50">
+            {(["all", "pending", "processing", "complete"] as const).map(
+              (s) => (
+                <TabsTrigger
+                  key={s}
+                  value={s}
+                  className="text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-none"
+                >
+                  {tabLabels[s]}
+                </TabsTrigger>
+              ),
+            )}
+          </TabsList>
+        </Tabs>
 
-        <div style={{ flex: 1, minWidth: 200, position: "relative" }}>
-          <Search
-            size={15}
-            style={{
-              position: "absolute",
-              left: 12,
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "#475569",
-            }}
-          />
-          <input
-            type="text"
-            placeholder="Search tasks…"
+        <div className="relative flex-1 min-w-[180px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{
-              width: "100%",
-              boxSizing: "border-box",
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 9,
-              padding: "8px 12px 8px 36px",
-              fontSize: 13,
-              color: "#f1f5f9",
-              outline: "none",
-            }}
+            placeholder="Search tasks…"
+            className="pl-9 bg-card/60 border-border/50 text-sm h-9"
           />
         </div>
       </div>
 
       {/* Task Grid */}
       {loading ? (
-        <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
-          <Loader2
-            size={32}
-            color="#6366f1"
-            style={{ animation: "spin 0.8s linear infinite" }}
-          />
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <div className="flex justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : filtered.length === 0 ? (
-        <div
-          style={{ textAlign: "center", padding: "60px 0", color: "#475569" }}
-        >
-          <CheckCircle2
-            size={48}
-            style={{ margin: "0 auto 12px", opacity: 0.4 }}
-          />
-          <p style={{ fontSize: 16, margin: 0 }}>No tasks found</p>
-          <p style={{ fontSize: 13, margin: "4px 0 0" }}>
-            Try a different filter or create a new task
-          </p>
+        <div className="flex flex-col items-center py-16 text-muted-foreground gap-3">
+          <CheckCircle2 className="h-12 w-12 opacity-30" />
+          <p className="text-base font-medium">No tasks found</p>
+          <p className="text-sm">Try a different filter or create a new task</p>
         </div>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-            gap: 16,
-          }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((task) => (
             <TaskCard
               key={task.id}
@@ -336,174 +212,75 @@ export default function TasksPage() {
 }
 
 function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
-  const sc = statusConfig[task.status];
-  const pc = priorityConfig[task.priority ?? "medium"];
-  const [hovered, setHovered] = useState(false);
+  const { badge: sBadge, dot } = statusStyle[task.status];
+  const pBadge = priorityStyle[task.priority ?? "medium"];
 
   return (
-    <div
+    <Card
       onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: hovered
-          ? "rgba(255,255,255,0.06)"
-          : "rgba(255,255,255,0.03)",
-        border: `1px solid ${hovered ? "rgba(99,102,241,0.3)" : "rgba(255,255,255,0.07)"}`,
-        borderRadius: 14,
-        padding: "18px 20px",
-        cursor: "pointer",
-        transition: "all 0.2s",
-        transform: hovered ? "translateY(-2px)" : "none",
-        boxShadow: hovered ? "0 8px 32px rgba(0,0,0,0.3)" : "none",
-      }}
+      className="group cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-black/30 bg-card/60 border-border/50"
     >
-      {/* Top: Status + Priority */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 12,
-        }}
-      >
-        <span
-          style={{
-            fontSize: 11,
-            fontWeight: 600,
-            padding: "3px 8px",
-            borderRadius: 20,
-            background: sc.bg,
-            color: sc.color,
-            display: "flex",
-            alignItems: "center",
-            gap: 5,
-            textTransform: "capitalize",
-          }}
-        >
-          <span
-            style={{
-              width: 5,
-              height: 5,
-              borderRadius: "50%",
-              background: sc.dot,
-            }}
-          />
-          {task.status}
-        </span>
-        <span
-          style={{
-            fontSize: 11,
-            fontWeight: 500,
-            padding: "3px 8px",
-            borderRadius: 20,
-            background: pc.bg,
-            color: pc.color,
-            textTransform: "capitalize",
-          }}
-        >
-          {task.priority}
-        </span>
-      </div>
-
-      {/* Title */}
-      <h3
-        style={{
-          margin: "0 0 8px",
-          fontSize: 15,
-          fontWeight: 600,
-          color: "#f1f5f9",
-          lineHeight: 1.4,
-        }}
-      >
-        {task.title}
-      </h3>
-
-      {/* Description */}
-      <p
-        style={{
-          margin: "0 0 14px",
-          fontSize: 13,
-          color: "#64748b",
-          lineHeight: 1.6,
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-        }}
-      >
-        {task.description}
-      </p>
-
-      {/* Technologies */}
-      {task.technologies?.length > 0 && (
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 6,
-            marginBottom: 14,
-          }}
-        >
-          {task.technologies.slice(0, 4).map((tech) => (
-            <span
-              key={tech}
-              style={{
-                fontSize: 11,
-                padding: "2px 8px",
-                borderRadius: 6,
-                background: "rgba(99,102,241,0.1)",
-                color: "#a5b4fc",
-                border: "1px solid rgba(99,102,241,0.15)",
-              }}
-            >
-              {tech}
-            </span>
-          ))}
-          {task.technologies.length > 4 && (
-            <span style={{ fontSize: 11, color: "#475569" }}>
-              +{task.technologies.length - 4}
-            </span>
-          )}
+      <CardContent className="p-5 space-y-3">
+        {/* Status + Priority */}
+        <div className="flex items-center justify-between">
+          <Badge
+            variant="outline"
+            className={cn("text-[11px] font-semibold border gap-1.5", sBadge)}
+          >
+            <span className={cn("h-1.5 w-1.5 rounded-full", dot)} />
+            {task.status}
+          </Badge>
+          <Badge
+            variant="outline"
+            className={cn("text-[11px] font-medium border capitalize", pBadge)}
+          >
+            {task.priority}
+          </Badge>
         </div>
-      )}
 
-      {/* Footer: Deploy target + Date */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <span
-          style={{
-            fontSize: 11,
-            color: "#475569",
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-          }}
-        >
-          <Clock size={11} />
-          {new Date(task.updatedAt).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-          })}
-        </span>
-        <span
-          style={{
-            fontSize: 11,
-            color: "#475569",
-            maxWidth: 140,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {task.deployTarget}
-        </span>
-      </div>
-    </div>
+        {/* Title */}
+        <h3 className="font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+          {task.title}
+        </h3>
+
+        {/* Description */}
+        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+          {task.description}
+        </p>
+
+        {/* Tech chips */}
+        {task.technologies?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {task.technologies.slice(0, 4).map((tech) => (
+              <span
+                key={tech}
+                className="text-[11px] px-2 py-0.5 rounded-md bg-primary/10 text-primary/80 border border-primary/15 font-medium"
+              >
+                {tech}
+              </span>
+            ))}
+            {task.technologies.length > 4 && (
+              <span className="text-[11px] text-muted-foreground self-center">
+                +{task.technologies.length - 4}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-1 border-t border-border/50">
+          <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+            <Clock className="h-3 w-3" />
+            {new Date(task.updatedAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })}
+          </span>
+          <span className="text-[11px] text-muted-foreground/70 truncate max-w-[140px]">
+            {task.deployTarget}
+          </span>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

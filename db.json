@@ -22,23 +22,24 @@
   "tasks": [
     {
       "id": "t1",
-      "title": "Setup Authentication System",
-      "description": "Implement a secure authentication system using JWT tokens and bcrypt password hashing. The system should support login, logout, and protected route access. hello do it asap",
+      "title": "Setup Authentication System do it",
+      "description": "Implement a secure authentication system using JWT tokens and bcrypt password hashing. The system should support login, logout, and protected route access. ",
       "approach": "1. Create login API route that verifies credentials against the database. 2. Sign a JWT token with user payload. 3. Store token in HTTP-only cookie. 4. Implement middleware to verify token on every request. 5. Add logout endpoint to clear cookies.",
       "technologies": [
         "Next.js",
         "JWT",
         "bcryptjs",
         "jose",
-        "JSON Server"
+        "JSON Server",
+        "Cookies"
       ],
       "deployTarget": "Vercel (Next.js app) + Railway (JSON Server)",
-      "status": "pending",
-      "priority": "medium",
+      "status": "processing",
+      "priority": "high",
       "assignedTo": "u1",
       "createdBy": "u1",
       "createdAt": "2026-02-01T10:00:00.000Z",
-      "updatedAt": "2026-02-26T12:17:42.150Z"
+      "updatedAt": "2026-02-26T12:28:22.987Z"
     },
     {
       "id": "t2",

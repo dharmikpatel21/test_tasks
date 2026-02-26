@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -12,6 +12,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface CurrentUser {
   id: string;
@@ -20,6 +24,11 @@ interface CurrentUser {
   role: string;
   avatar: string;
 }
+
+const navItems = [
+  { href: "/tasks", label: "All Tasks", icon: LayoutDashboard, exact: true },
+  { href: "/tasks/new", label: "New Task", icon: Plus, exact: true },
+];
 
 export default function TasksLayout({
   children,
@@ -45,86 +54,32 @@ export default function TasksLayout({
     router.refresh();
   };
 
-  const navItems = [
-    { href: "/tasks", label: "All Tasks", icon: LayoutDashboard, exact: true },
-    { href: "/tasks/new", label: "New Task", icon: Plus, exact: true },
-  ];
-
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        background: "#0d0d1a",
-        fontFamily: "'Inter', system-ui, sans-serif",
-      }}
-    >
+    <div className="flex min-h-screen bg-background">
       {/* ── Sidebar ── */}
       <aside
-        style={{
-          width: collapsed ? 64 : 240,
-          flexShrink: 0,
-          background: "rgba(255,255,255,0.03)",
-          borderRight: "1px solid rgba(255,255,255,0.07)",
-          display: "flex",
-          flexDirection: "column",
-          transition: "width 0.25s ease",
-          overflow: "hidden",
-          position: "sticky",
-          top: 0,
-          height: "100vh",
-        }}
+        className={cn(
+          "relative flex flex-col border-r border-border bg-sidebar transition-all duration-250 ease-in-out flex-shrink-0",
+          collapsed ? "w-16" : "w-60",
+        )}
       >
         {/* Logo */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            padding: "20px 16px 16px",
-            borderBottom: "1px solid rgba(255,255,255,0.07)",
-          }}
-        >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
-              borderRadius: 10,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              boxShadow: "0 4px 16px rgba(99,102,241,0.4)",
-            }}
-          >
-            <CheckSquare size={18} color="white" strokeWidth={2.5} />
+        <div className="flex items-center gap-2.5 px-4 py-5 border-b border-sidebar-border overflow-hidden">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-violet-600 shadow-md shadow-primary/30">
+            <CheckSquare
+              className="h-4 w-4 text-primary-foreground"
+              strokeWidth={2.5}
+            />
           </div>
           {!collapsed && (
-            <span
-              style={{
-                fontSize: 16,
-                fontWeight: 700,
-                color: "#f1f5f9",
-                letterSpacing: "-0.3px",
-                whiteSpace: "nowrap",
-              }}
-            >
+            <span className="text-base font-bold tracking-tight text-foreground whitespace-nowrap">
               TaskFlow
             </span>
           )}
         </div>
 
         {/* Nav */}
-        <nav
-          style={{
-            flex: 1,
-            padding: "12px 8px",
-            display: "flex",
-            flexDirection: "column",
-            gap: 4,
-          }}
-        >
+        <nav className="flex-1 space-y-1 p-2 pt-3">
           {navItems.map(({ href, label, icon: Icon, exact }) => {
             const active = exact
               ? pathname === href
@@ -133,157 +88,78 @@ export default function TasksLayout({
               <Link
                 key={href}
                 href={href}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: "9px 10px",
-                  borderRadius: 9,
-                  textDecoration: "none",
-                  background: active ? "rgba(99,102,241,0.18)" : "transparent",
-                  color: active ? "#a5b4fc" : "#64748b",
-                  fontWeight: active ? 600 : 400,
-                  fontSize: 14,
-                  transition: "background 0.15s, color 0.15s",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  border: active
-                    ? "1px solid rgba(99,102,241,0.25)"
-                    : "1px solid transparent",
-                }}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-all duration-150 overflow-hidden",
+                  active
+                    ? "bg-accent text-accent-foreground font-semibold border border-primary/20"
+                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+                )}
               >
-                <Icon size={18} style={{ flexShrink: 0 }} />
-                {!collapsed && label}
+                <Icon className="h-4 w-4 flex-shrink-0" />
+                {!collapsed && (
+                  <span className="whitespace-nowrap">{label}</span>
+                )}
               </Link>
             );
           })}
         </nav>
 
         {/* User + Logout */}
-        <div
-          style={{
-            borderTop: "1px solid rgba(255,255,255,0.07)",
-            padding: "12px 8px",
-          }}
-        >
+        <div className="border-t border-sidebar-border p-2 space-y-1">
           {user && (
             <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "8px 10px",
-                marginBottom: 6,
-                overflow: "hidden",
-              }}
+              className={cn(
+                "flex items-center gap-2.5 px-2.5 py-2 overflow-hidden",
+                collapsed && "justify-center",
+              )}
             >
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: "white",
-                  flexShrink: 0,
-                }}
-              >
-                {user.avatar ?? user.name.slice(0, 2).toUpperCase()}
-              </div>
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarFallback className="bg-gradient-to-br from-primary to-violet-600 text-primary-foreground text-xs font-bold">
+                  {user.avatar ?? user.name.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
               {!collapsed && (
-                <div style={{ overflow: "hidden" }}>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: "#cbd5e1",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-foreground">
                     {user.name}
                   </p>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: 11,
-                      color: "#475569",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
+                  <p className="truncate text-xs text-muted-foreground capitalize">
                     {user.role}
                   </p>
                 </div>
               )}
             </div>
           )}
-          <button
+
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={handleLogout}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              width: "100%",
-              padding: "9px 10px",
-              border: "none",
-              background: "transparent",
-              borderRadius: 9,
-              color: "#ef4444",
-              fontSize: 14,
-              fontWeight: 500,
-              cursor: "pointer",
-              transition: "background 0.15s",
-              whiteSpace: "nowrap",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(239,68,68,0.1)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "transparent")
-            }
+            className={cn(
+              "w-full text-destructive hover:bg-destructive/10 hover:text-destructive",
+              collapsed ? "justify-center px-0" : "justify-start",
+            )}
           >
-            <LogOut size={17} style={{ flexShrink: 0 }} />
-            {!collapsed && "Logout"}
-          </button>
+            <LogOut className="h-4 w-4 flex-shrink-0" />
+            {!collapsed && <span className="ml-2">Logout</span>}
+          </Button>
         </div>
 
         {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed((v) => !v)}
-          style={{
-            position: "absolute",
-            top: 20,
-            right: -12,
-            width: 24,
-            height: 24,
-            borderRadius: "50%",
-            background: "#1e1e3a",
-            border: "1px solid rgba(255,255,255,0.1)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            color: "#64748b",
-            transition: "background 0.15s",
-            zIndex: 10,
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#2d2d50")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#1e1e3a")}
+          className="absolute -right-3 top-5 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-sidebar text-muted-foreground shadow-sm hover:bg-accent transition-colors z-10"
         >
-          {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
+          {collapsed ? (
+            <ChevronRight className="h-3 w-3" />
+          ) : (
+            <ChevronLeft className="h-3 w-3" />
+          )}
         </button>
       </aside>
 
-      {/* ── Main content ── */}
-      <main style={{ flex: 1, overflow: "auto", minWidth: 0 }}>{children}</main>
+      {/* ── Main ── */}
+      <main className="flex-1 min-w-0 overflow-auto">{children}</main>
     </div>
   );
 }
